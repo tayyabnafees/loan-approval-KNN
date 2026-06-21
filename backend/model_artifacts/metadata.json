@@ -1,0 +1,46 @@
+{
+    "num_cols": [
+        "ApplicantIncome",
+        "CoapplicantIncome",
+        "LoanAmount",
+        "Loan_Amount_Term",
+        "Credit_History"
+    ],
+    "cat_cols": [
+        "Gender",
+        "Married",
+        "Dependents",
+        "Education",
+        "Self_Employed",
+        "Property_Area"
+    ],
+    "imputation_values": {
+        "ApplicantIncome": 3812.5,
+        "CoapplicantIncome": 1188.5,
+        "LoanAmount": 128.0,
+        "Loan_Amount_Term": 360.0,
+        "Credit_History": 1.0,
+        "Gender": "Male",
+        "Married": "Yes",
+        "Dependents": "0",
+        "Education": "Graduate",
+        "Self_Employed": "No",
+        "Property_Area": "Semiurban"
+    },
+    "encoded_columns": [
+        "ApplicantIncome",
+        "CoapplicantIncome",
+        "LoanAmount",
+        "Loan_Amount_Term",
+        "Credit_History",
+        "Gender_Male",
+        "Married_Yes",
+        "Dependents_1",
+        "Dependents_2",
+        "Dependents_3+",
+        "Education_Not Graduate",
+        "Self_Employed_Yes",
+        "Property_Area_Semiurban",
+        "Property_Area_Urban"
+    ]
+}
