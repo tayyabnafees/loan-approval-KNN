@@ -17,7 +17,7 @@ app = FastAPI(
 # Enable CORS for Next.js frontend calls
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify the Next.js URL (e.g., http://localhost:3000)
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -31,17 +31,20 @@ metadata = None
 @app.on_event("startup")
 def load_artifacts():
     global model, scaler, metadata
-    artifacts_dir = "model_artifacts"
+    
+    # Locate artifacts folder relative to this file's location to prevent CWD mismatches on serverless Vercel
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    artifacts_dir = os.path.join(current_dir, "model_artifacts")
     
     model_path = os.path.join(artifacts_dir, "model.joblib")
     scaler_path = os.path.join(artifacts_dir, "scaler.joblib")
     metadata_path = os.path.join(artifacts_dir, "metadata.json")
     
     if not (os.path.exists(model_path) and os.path.exists(scaler_path) and os.path.exists(metadata_path)):
-        # Try running the train script if artifacts don't exist
-        print("Model artifacts not found, training the model first...")
-        from train_model import train_and_save
-        train_and_save()
+        raise FileNotFoundError(
+            f"Required model artifacts not found at '{artifacts_dir}'. "
+            "Ensure 'model.joblib', 'scaler.joblib', and 'metadata.json' are present."
+        )
         
     try:
         model = joblib.load(model_path)
@@ -51,7 +54,7 @@ def load_artifacts():
         print("Model artifacts loaded successfully.")
     except Exception as e:
         print(f"Error loading model artifacts: {e}")
-        raise RuntimeError("Failed to load model artifacts.")
+        raise RuntimeError(f"Failed to load model artifacts: {str(e)}")
 
 # Define Pydantic request schema
 class LoanApplicant(BaseModel):
@@ -73,10 +76,12 @@ class PredictionResponse(BaseModel):
     status_code: int
 
 @app.get("/")
+@app.get("/api")
 def read_root():
     return {"message": "Loan Approval Prediction API is running."}
 
 @app.post("/predict", response_model=PredictionResponse)
+@app.post("/api/predict", response_model=PredictionResponse)
 def predict_loan(applicant: LoanApplicant):
     if model is None or scaler is None or metadata is None:
         raise HTTPException(status_code=503, detail="Model is not loaded.")

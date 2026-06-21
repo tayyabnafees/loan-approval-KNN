@@ -210,9 +210,14 @@ export default function Home() {
     });
 
     try {
-      // Pointing to local FastAPI backend port 8000
-      const response = await fetchconst response = await fetch('/api/predict', { ... })
-;
+      // Relative path matches backend Vercel route and local next config proxy rewrite
+      const response = await fetch("/api/predict", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
       if (!response.ok) {
         throw new Error(`Server returned ${response.status}: ${response.statusText}`);
